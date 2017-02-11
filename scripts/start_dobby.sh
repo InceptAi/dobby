@@ -1,10 +1,11 @@
-if [ "$#" -ne 2 ]; then
-  echo "./start_dobby.sh trace_dir summary_dir"
+if [ "$#" -ne 3 ]; then
+  echo "./start_dobby.sh trace_dir summary_dir generate_json(0/1)"
   exit 1
 fi
 
 TRACEDIR=$1
 SUMMARYDIR=$2
+GENERATE_JSON=$3
 
 if [ ! -d "$TRACEDIR" ]; then
   # Control will enter here if $DIRECTORY doesn't exist.
@@ -81,8 +82,21 @@ do
   
   #click -e $config
   click /tmp/dobby.click
+  #copy xmls
   cp /tmp/wireless.xml $SUMMARYDIR/${justbase}_wireless.xml
   cp /tmp/tcpmystery.xml $SUMMARYDIR/${justbase}_tcpmystery.xml
   cp /tmp/tcploss.xml $SUMMARYDIR/${justbase}_tcploss.xml
   cp /tmp/node.xml $SUMMARYDIR/${justbase}_node.xml
+  if [ $GENERATE_JSON -eq 1 ]; then
+    #create corresponding json files
+    python xml_to_json.py -f /tmp/wireless.xml
+    python xml_to_json.py -f /tmp/tcpmystery.xml
+    python xml_to_json.py -f /tmp/tcploss.xml
+    python xml_to_json.py -f /tmp/node.xml
+    #copy json
+    cp /tmp/wireless.json $SUMMARYDIR/${justbase}_wireless.json
+    cp /tmp/tcpmystery.json $SUMMARYDIR/${justbase}_tcpmystery.json
+    cp /tmp/tcploss.json $SUMMARYDIR/${justbase}_tcploss.json
+    cp /tmp/node.json $SUMMARYDIR/${justbase}_node.json
+  fi
 done
