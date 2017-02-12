@@ -1,11 +1,12 @@
-if [ "$#" -ne 3 ]; then
-  echo "./start_dobby.sh trace_dir summary_dir generate_json(0/1)"
+if [ "$#" -ne 4 ]; then
+  echo "./start_dobby.sh wireless_interface trace_dir summary_dir generate_json(0/1)"
   exit 1
 fi
 
-TRACEDIR=$1
-SUMMARYDIR=$2
-GENERATE_JSON=$3
+INTERFACE=$1
+TRACEDIR=$2
+SUMMARYDIR=$3
+GENERATE_JSON=$4
 
 if [ ! -d "$TRACEDIR" ]; then
   # Control will enter here if $DIRECTORY doesn't exist.
@@ -22,7 +23,7 @@ fi
 # killing data decyption
 sudo killall -w dot11decrypt
 # starting data decryption
-sudo dot11decrypt -a wpa:big10:wolves999 -p big10 -o ~/Work/HomeNetworkAssistant/home_traces -t 300 -i wlxec086b132588 &
+sudo dot11decrypt -a wpa:big10:wolves999 -p big10 -o ~/Work/HomeNetworkAssistant/home_traces -t 300 -i $INTERFACE &
 #screen -d -m sudo ./dot11decrypt -a wpa:big10:wolves999 -p big10 -o /home/vivek/Work/HomeNetworkAssistant/home_traces -t 300 -i wlxec086b132588
 
 config="
