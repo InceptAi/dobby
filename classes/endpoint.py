@@ -36,7 +36,7 @@ class EndPoint(object):
     attr : keyword arguments, optional (default= no attributes)
         Attributes to add to graph as key=value pairs.
     """
-    def __init__(self, phy_address, phy_model, ip_address, **attr)
+    def __init__(self, phy_address, phy_model=None, ip_address=None, **attr)
         self.phy_address = phy_address
         self.phy_model = phy_model
         self.ip_address = ip_address
@@ -44,5 +44,8 @@ class EndPoint(object):
 
 
     def add_link(self, link):
-        self.links.add(link) 
+        self.links.add(link)
+
+class EndPoint(object):
+
 

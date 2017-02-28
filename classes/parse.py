@@ -9,16 +9,22 @@ from classes.edge import Edge
 from classes.node import Node
 from classes.flow import Flow
 from classes.app import NetworkApp
-from classes.phymodel import PhyAddress, PhyModel, WifiPhysicalModel
+from classes.phymodel import PhysicalAddress, PhyModel, WifiPhysicalModel
 import json
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
+# Keyed by mac
 ENDPOINTS = {}
+# Keyed by node uuid
 NODES = {}
+# Keyed by endpoint macs
 EDGES = {}
+# Keyed by flow ip:port->ip:port
 FLOWS = {}
-PHYMODEL = {}
+# Keyed by the BSSID + Channel --> a given AP on a given channel
+PHYMODELS = {}
+# Keyed by app uuid
 APPS = {}
 
 
@@ -28,17 +34,47 @@ class ParseWirelessSummary(object):
     def __init__(self, fname=None)
         with open(fname) as f:
             content = f.readlines()
+
         # Each line should be a json wireless summary
         for summary in content:
             wireless_json = json.loads(summary)
+
         #Iterate and update the endpoint stats
         for link in wireless_json['links']['link']:
             ap = link['@ap']
             client = link['@client']
             bssid = link['@bssid']
-            # Create an endpoint for ap/client
+            channel = link['@channel']
+
+            #Create physical addresses
+            ap_addr = PhysicalAddress(ap)
+            client_addr = PhysicalAddress(client)
+            bssid_addr = PhysicalAddress(bssid)
+
             # Create a phyModel for bssid
-            ENDPOINTS[
+            wifi_model = PHYMODELS.get((bssid_addr, channel) , None)
+            if wifi_model is None:
+                # Create wifi model
+                wifi_model = WifiPhysicalModel(mac=bssid_addr, channel=channel)
+            else:
+                wifi_model.add_clients(clients=[client_addr])
+            PHYMODELS[(bssid_addr, channel)] = wifi_model
+
+            # Create an endpoint entry for ap/client
+            ap_endpoint = ENDPOINTS.get(ap_addr, None)
+            if not ap_endpoint:
+                ap_endpoint = EndPoint(phy_address=ap_addr,
+                                       phy_model=wifi_model)
+                ENDPOINTS[ap_addr] = endpoint_ap
+
+            client_endpoint = ENDPOINTS.get(client_addr, None)
+            if not client_endpoint:
+                client_endpoint = EndPoint(phy_address=client_addr,
+                                           phy_model=wifi_model)
+                ENDPOINTS[client_addr] = client_addr
+
+            # Create an edge for this
+            edge_ap_client = EDGES.get((ap_addr, client_addr), 
             for stream in link['stream']:
                 direction = stream['@dir']
                 avg_signal = stream['@avg_signal']
@@ -51,7 +87,7 @@ class ParseWirelessSummary(object):
                 total_pkts = stream['@total_pkts']
                 total_retx = stream['@total_retx']
                 total_trans_time_usec = stream['@total_trans_time_usec']
-                
+                 
 
 
 

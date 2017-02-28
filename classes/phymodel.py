@@ -31,7 +31,7 @@ class PhysicalAddress(object):
         """Initialize an address and its attributes.
         Parameters
         ----------
-        phy_address : input Ethernet Address 
+        phy_address : input Ethernet Address
         attr : keyword arguments, optional (default= no attributes)
           Attributes to add to graph as key=value pairs.
 
@@ -40,10 +40,20 @@ class PhysicalAddress(object):
           raise ValueError('Physical address cannot be null')
         if not check_mac(phy_address):
           raise ValueError('Incorrect format of input mac, should be (AA:BB:CC:DD:EE:FF)', phy_address)
-        self.phyaddress_metadata = {}   
+        self.phyaddress_metadata = {}
         self.phy_address = phy_address.lower().replace("-",":")
         self.phyaddress_metadata.update(attr)
-    
+
+    def __hash__(self):
+        return hash(self.phy_address)
+
+    def __eq__(self, other):
+        return (self.phy_address) == (other.phy_address)
+
+    def __ne__(self, other):
+    # Not strictly necessary, but to avoid having both x==y and x!=y
+    # True at the same time
+        return not(self == other)
 
     def update_properties(self, **attr):
         """Update IP properties.
@@ -69,15 +79,15 @@ class PhysicalLayerMTU(Enum):
 
 class PhysicalModel(object):
     """ Class representing the physical link between nodes
-    PhyModel { 
+    PhyModel {
         PhyType phyType
         int mtu // MTU for the link
-        union {            
-            WifiPhyModel wifiPhyModel 
-            EthPhyModel ethPhyModel 
+        union {
+            WifiPhyModel wifiPhyModel
+            EthPhyModel ethPhyModel
             …. Any other models ..
         }
-    } 
+    }
     """
     def __init__(self, phy_type=PhysicalModelTypes.UNKNOWN, mtu=PhysicalLayerMTU.UNKNOWN):
         self.phy_type = phy_type
@@ -99,77 +109,45 @@ class WifiPhysicalModel(PhysicalModel):
     }
     """
 
-    def __init__(self, ap_mac=None, ssid=None, channel=0, clients=[], interferers=[], **attr):
+    def __init__(self, mac, ssid=None, channel=0, clients=[], interferers=[], **attr):
         """Initialize a wireless model and its related attributes.
         Parameters
         ----------
-        ap_mac: AP's MAC Address 
+        mac: AP's MAC Address
         attr : keyword arguments, optional (default= no attributes)
           Attributes to add to graph as key=value pairs.
         """
         PhysicalModel.__init__(self, phy_type=PhysicalModelTypes.WIFI, mtu=PhysicalLayerMTU.WIFI)
-        self.wifi_metadata = {}   
-        self.wifi_stats = Counter()   
+        self.wifi_metadata = {}
+        self.wifi_stats = Counter()
         self.clients = set()
         self.interferers = set()
         self.wifi_metadata.update(attr)
         self.ssid = ssid
         self.channel = channel
         self.last_seen = time.time()
-        try:
-            physical_ap_address = PhysicalAddress(ap_mac)
-        except ValueError as err:
-            print(err.args)
-        else:
-            self.ap_mac = physical_ap_address
-
-        for client in clients:
-            try:
-                physical_client_address = PhysicalAddress(client)
-            except ValueError as err:
-                print(err.args)
-            else:
-                self.clients.add(physical_client_address)
-  
-        for interferer in interferers:
-            try:
-                physical_interferer_address = PhysicalAddress(interferer)
-            except ValueError as err:
-                print(err.args)
-            else:
-                self.interferer.add(physical_interferer_address)
-             
+        self.mac = mac
+        self.clients.add(clients)
+        self.interferers.add(interferers)
 
     def add_clients(self, clients):
         """Add to the list of clients.
         """
-        for client in clients:
-            try:
-                physical_client_address = PhysicalAddress(client)
-            except ValueError as err:
-                print(err.args)
-            else:
-                self.clients.add(physical_client_address)
- 
+        self.clients.add(clients)
+
     def add_interferers(self, interferers):
         """Add to interferer list.
         """
-        for interferer in interferers:
-            try:
-                physical_interferer_address = PhysicalAddress(interferer)
-            except ValueError as err:
-                print(err.args)
-            else:
-                self.interferer.add(physical_interferer_address)
+        self.interferers.add(interferers)
 
      def update_last_seen(self):
         """Update last seen timestamp.
         """
         self.last_seen = time.time()
-     
+
      def update_stats(self, **stats):
         """Update stats.
         """
-        # Using counters here for most keys 
+        # Using counters here for most keys
         self.wifi_stats.update(stats)
 
