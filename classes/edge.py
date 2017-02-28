@@ -4,8 +4,14 @@ from collections import Counter
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
+@unique
+class EdgeType(Enum):
+    UNKNOWN = 0
+    PHYSICAL = 1
+    BRIDGE = 2
+    VIRTUAL = 3
 
- class Edge(object):
+class Edge(object):
     """
     Base class for edges in our model.
     Edge : {
@@ -16,7 +22,7 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
         LinkMetrics AtoB  // link metrics for the traffic from A to B
         LinkMetrics BtoA  // link metrics for the traffic from B to A
         Metrics avgRTT, avgLatency, avgLoss // direction-less link metrics.
-        PhyModel phyModel = if (A.phyModel.type == B.phyModel.type) ? A.phyModel : BRIDGE 
+        PhyModel phyModel = if (A.phyModel.type == B.phyModel.type) ? A.phyModel : BRIDGE
         phyModel.mtu = min(A.phyModel.mtu, B.phyModel.mtu)
       }
 
@@ -26,7 +32,7 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
     attr : keyword arguments, optional (default= no attributes)
         Attributes to add to graph as key=value pairs.
     """
-    def __init__(self, endpoint_a, endpoint_b, edge_type, **metrics, **metrics_ab, **metrics_ba)
+    def __init__(self, endpoint_a, endpoint_b, edge_type=EdgeType.UNKNOWN, **metrics, **metrics_ab, **metrics_ba)
         self.endpoint_a = endpoint_a
         self.endpoint_b = endpoint_b
         self.edge_type = edge_type

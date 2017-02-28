@@ -5,7 +5,7 @@ from copy import deepcopy
 from collections import Counter
 from enum import Enum, unique
 from classes.endpoint import EndPoint
-from classes.edge import Edge
+from classes.edge import EdgeType, Edge
 from classes.node import Node
 from classes.flow import Flow
 from classes.app import NetworkApp
@@ -65,17 +65,22 @@ class ParseWirelessSummary(object):
             if not ap_endpoint:
                 ap_endpoint = EndPoint(phy_address=ap_addr,
                                        phy_model=wifi_model)
-                ENDPOINTS[ap_addr] = endpoint_ap
+                ENDPOINTS[ap_addr] = ap_endpoint
 
             client_endpoint = ENDPOINTS.get(client_addr, None)
             if not client_endpoint:
                 client_endpoint = EndPoint(phy_address=client_addr,
                                            phy_model=wifi_model)
-                ENDPOINTS[client_addr] = client_addr
+                ENDPOINTS[client_addr] = client_endpoint
 
             # Create an edge for this
-            edge_ap_client = EDGES.get((ap_addr, client_addr), 
+            edge = EDGES.get((ap_addr, client_addr), None)
+            if not edge:
+                edge = Edge(ap_addr, client_addr, EdgeType.PHYSICAL)
+
             for stream in link['stream']:
+                if stream['@dir'] == "NODS":
+
                 direction = stream['@dir']
                 avg_signal = stream['@avg_signal']
                 avg_noise = stream['@avg_noise']
