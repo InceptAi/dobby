@@ -27,7 +27,7 @@ class PhysicalAddress(object):
 
     """
 
-    def __init__(self, phy_address=None, **attr):
+    def __init__(self, phy_address=None, vendor=None, **attr):
         """Initialize an address and its attributes.
         Parameters
         ----------
@@ -40,9 +40,10 @@ class PhysicalAddress(object):
           raise ValueError('Physical address cannot be null')
         if not check_mac(phy_address):
           raise ValueError('Incorrect format of input mac, should be (AA:BB:CC:DD:EE:FF)', phy_address)
-        self.phyaddress_metadata = {}
+        self.metadata = {}
         self.phy_address = phy_address.lower().replace("-",":")
-        self.phyaddress_metadata.update(attr)
+        self.vendor = vendor
+        self.metadata.update(attr)
 
     def __hash__(self):
         return hash(self.phy_address)
@@ -56,9 +57,11 @@ class PhysicalAddress(object):
         return not(self == other)
 
     def update_properties(self, **attr):
-        """Update IP properties.
-        """
-        self.phyaddress_metadata.update(attr)
+        self.metadata.update(attr)
+
+    def update_vendor(self, vendor):
+        self.vendor = vendor
+
 
 @unique
 class PhysicalModelTypes(Enum):

@@ -1,5 +1,5 @@
 """Base class for a Flow.
-Flow: A flow is a transport or high layer connection from one 
+Flow: A flow is a transport or high layer connection from one
 endpoint to another such as a HTTP connection, an RTP streaming connection, etc.
 """
 from __future__ import division
@@ -11,7 +11,7 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 @unique
 class FlowType(Enum):
-  UNKNOWN = 0 
+  UNKNOWN = 0
   HTTP = 1
   STREAMING = 2
   EMAIL = 3
@@ -33,15 +33,24 @@ class Flow(object):
         FlowType flowType[MAX_PROTOCOL_LAYERS] // A list of protocols like HTTP/TCP/IP
         Int Port
         FlowMetrics flowMetrics  // Captures network metrics for this flow.
-    } 
+    }
 
     """
-    def __init__(self, edge_list=[], flow_type=FlowType.UNKNOWN, port=0, **metrics)
+    def __init__(self, edge_list=[], flow_type=FlowType.UNKNOWN,
+                 src_endpoint=None, dst_endpoint=None, sport=None,
+                 dport=None, flow_metrics=None, flow_metrics_src_to_dst=None,
+                 flow_metrics_dst_to_src=None, **kwargs)
+        self.src_endpoint = src_endpoint
+        self.dst_endpoint = dst_endpoint
         self.edge_list = edge_list
         self.flow_type = flow_type
-        self.port = port
-        self.flow_metrics = Counter()
+        self.sport = sport
+        self.dport = dport
+        self.flow_metrics = flow_metrics
+        self.flow_metrics_src_to_dst = flow_metrics_src_to_dst
+        self.flow_metrics_dst_to_src = flow_metrics_dst_to_src
+        self.update(kwargs)
+
+    def update_metrics(self, **metrics):
         self.flow_metrics.update(metrics)
 
-    def update_metrics(self, metrics):
-        self.flow_metrics.update(metrics) 
