@@ -34,7 +34,6 @@ class PhysicalAddress(object):
         phy_address : input Ethernet Address
         attr : keyword arguments, optional (default= no attributes)
           Attributes to add to graph as key=value pairs.
-
         """
         if not phy_address:
           raise ValueError('Physical address cannot be null')
@@ -70,6 +69,8 @@ class PhysicalAddress(object):
     def update_vendor(self, vendor):
         self.vendor = vendor
 
+    def __gt__(self, other):
+        return self.phy_address > other.phy_address
 
 @unique
 class PhysicalModelTypes(Enum):

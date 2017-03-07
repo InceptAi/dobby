@@ -43,10 +43,14 @@ class Edge(object):
     attr : keyword arguments, optional (default= no attributes)
         Attributes to add to graph as key=value pairs.
     """
-    def __init__(self, endpoint_a, endpoint_b, edge_type=EdgeType.UNKNOWN, **kwargs):
+    def __init__(self, endpoint_a, endpoint_b, edge_type=EdgeType.UNKNOWN,
+                 edge_metrics=None, edge_metrics_ab=None, edge_metrics_ba=None, **kwargs):
         self.endpoint_a = endpoint_a
         self.endpoint_b = endpoint_b
         self.edge_type = edge_type
+        self.edge_metrics = edge_metrics
+        self.edge_metrics_ab = edge_metrics_ab
+        self.edge_metrics_ba = edge_metrics_ba
         self.__dict__.update(kwargs)
 
 
@@ -54,6 +58,7 @@ class Edge(object):
         self.edge_metrics = metrics
 
     def update_metrics_ab(self, metrics_ab):
+        print ("Adding metrics ab for", str(self.endpoint_a.phy_address), str(self.endpoint_b.phy_address))
         self.edge_metrics_ab = metrics_ab
 
     def update_metrics_ba(self, metrics_ba):

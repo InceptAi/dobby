@@ -27,7 +27,8 @@ class NodeType(Enum):
   SERVER = 11
   DESKTOP = 12
   WIRELESS_CLIENT = 13
-  ALL_GENERIC = 14
+  CLOUD_IP = 14
+  ALL_GENERIC = 15
 
 class Node(object):
     """
