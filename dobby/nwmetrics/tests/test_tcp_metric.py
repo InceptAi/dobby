@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from dobby.classes.metrics import *
+import dobby.nwmetrics.metrics as metrics
 import unittest
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
@@ -8,8 +8,8 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 class TestTCPMetrics(unittest.TestCase):
     def setUp(self):
-        self.rtt_stats = Stats(min_val=10.254, max_val=120.001, num_samples=10)
-        self.tcp_metric = TCPMetrics(start_ts=1, end_ts=2, total_pkts=10, total_bytes=100,
+        self.rtt_stats = metrics.Stats(min_val=10.254, max_val=120.001, num_samples=10)
+        self.tcp_metric = metrics.TCPMetrics(start_ts=1, end_ts=2, total_pkts=10, total_bytes=100,
                                      duration=1, mtu=1200, total_loss=5,
                                      total_acks=10, rtt_stats=self.rtt_stats)
 
@@ -32,7 +32,7 @@ class TestTCPMetrics(unittest.TestCase):
         test_input = dict(start_ts=1, end_ts=2, total_pkts=10, total_bytes=100,
                                      duration=1, mtu=1200, total_loss=5,
                                      total_acks=10, rtt_stats=self.rtt_stats)
-        self.edge = TCPMetrics(**test_input)
+        self.edge = metrics.TCPMetrics(**test_input)
         self.assertEqual(self.tcp_metric.total_pkts, 10)
         self.assertEqual(self.tcp_metric.total_bytes, 100)
         self.assertEqual(self.tcp_metric.total_loss, 5)
@@ -45,7 +45,7 @@ class TestTCPMetrics(unittest.TestCase):
         self.assertEqual(self.tcp_metric.rtt_stats.num_samples, 10)
 
     def test_update_stats_works(self):
-        self.tcp_metric = TCPMetrics()
+        self.tcp_metric = metrics.TCPMetrics()
         test_input = dict(start_ts=1, end_ts=2, total_pkts=10, total_bytes=100,
                                      duration=1, mtu=1200, total_loss=5,
                                      total_acks=10, rtt_stats=self.rtt_stats)

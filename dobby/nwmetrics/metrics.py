@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 """Utility class for network metrics.
 """
-from __future__ import division
-from copy import deepcopy
-import re
-import time
-from collections import Counter
-from enum import Enum, unique
-
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 class Stats(object):
@@ -38,6 +31,34 @@ class Stats(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    @classmethod
+    def from_string(cls, value_string, num_samples=None):
+        if not value_string:
+            return None
+        try:
+            params = {}
+            vals = value_string.split('/')
+            params['percentile_10'] = float(vals[0])
+            params['percentile_50'] = float(vals[1])
+            params['percentile_90'] = float(vals[2])
+            if num_samples:
+                params['num_samples'] = float(num_samples)
+        except:
+            print ("Incorrect string format or non int values: format=(per_10/per_50/per_90)")
+            return None
+        else:
+            return cls(**params)
+
+    @classmethod
+    def from_rtt_json(cls, rtt_json):
+        if not rtt_json:
+            return None
+        rtt_dict = {}
+        # Generate the metrics for RTT/Semirtt/Loss
+        for rtt in rtt_json:
+            rtt_dict[rtt['@source']] = get_float_value(rtt, '@value')
+        return cls(**rtt_dict)
 
 class Metrics(object):
     """ Class representing network metrics
