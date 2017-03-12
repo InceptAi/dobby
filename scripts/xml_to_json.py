@@ -28,7 +28,7 @@ def write_json(json_data, output_file):
 def main():
   op = OptionParser()
   op.add_option("-v", "--verbose", action="store_true", help="verbose", default=False)
-  op.add_option("-f", "--xmlfile", dest="xml_file", help="XML file to convert to json", default=False)
+  op.add_option("-f", "--xmlfile", dest="xml_file", help="XML file to convert to json", default=None)
   (opts, args) = op.parse_args()
   if not opts.xml_file:   # if filename is not given
     op.error('XML Filename not given')

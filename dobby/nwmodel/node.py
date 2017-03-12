@@ -3,16 +3,13 @@ Node: A device that has multiple endpoints, such as a smartphone, laptop, a
 network router, gateway, cable modem etc. A node can either route or bridge packets 
 or generate/consume them (via applications) or both.
 """
-from __future__ import division
-from copy import deepcopy
-from collections import Counter
-from enum import Enum, unique
+import enum
 import uuid
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
-@unique
-class NodeType(Enum):
+@enum.unique
+class NodeType(enum.Enum):
   UNKNOWN = 0
   WIRELESS_ROUTER = 1
   BRIDGE = 2

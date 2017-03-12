@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-
-from dobby.classes.endpoint import *
-from dobby.classes.phymodel import *
-from dobby.classes.node import *
-from dobby.classes.ipinfo import *
-from dobby.classes.node import *
-from dobby.classes.flow import *
-from dobby.classes.edge import *
-from dobby.classes.parse import *
-from dobby.classes.metrics import *
 import ipaddress
 import unittest
+
+import dobby.nwinfo.networksummary as networksummary
+import dobby.nwmodel.edge as edge
+import dobby.nwmodel.endpoint as endpoint
+import dobby.nwmodel.flow as flow
+import dobby.nwmodel.ipinfo as ipinfo
+import dobby.nwmetrics.metrics as metrics
+import dobby.nwmodel.node as node
+import dobby.nwparser.parsetcpmystery as tcpmysteryparser
+import dobby.utils.util as util
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 
 class TestParseTCPMysterySummary(unittest.TestCase):
     def setUp(self):
-        IP_TO_ENDPOINTS = {}
-        NODES = {}
-        IP_FLOWS = {}
         self.ip_1 = ipaddress.IPv4Address('192.168.1.113')
         self.ip_2 = ipaddress.IPv4Address('192.168.1.120')
         self.ip_3 = ipaddress.IPv4Address('54.148.159.16')
@@ -31,35 +28,36 @@ class TestParseTCPMysterySummary(unittest.TestCase):
             self.ips.update([flow['@dst'], flow['@src']])
             self.tcp_info.append((flow['@src'], flow['@dst'], flow['@sport'], flow['@dport']))
             self.tcp_keys.append(str(flow['@src'] + "-" + flow['@sport'] + "-" + flow['@dst'] + "-" + flow['@dport']))
-        self.tcpmystery = ParseTCPMysterySummary(tcpmystery_json=self.tcpmystery_json)
+        self.ns = networksummary.NetworkSummary()
+        self.tcpmystery_parser = tcpmysteryparser.ParseTCPMysterySummary()
 
     def tearDown(self):
         self.tcpmystery_json = None
 
     def test_validate_parsing(self):
-        self.tcpmystery.parse_summary()
-        self.assertEqual(len(IP_TO_ENDPOINTS), len(self.ips))
-        self.assertEqual(len(IP_FLOWS), len(self.tcp_info))
-        self.assertEqual(len(NODES), len(self.ips))
-        self.assertListEqual(sorted(IP_TO_ENDPOINTS.keys()), sorted(self.ips))
-        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in IP_TO_ENDPOINTS.values()]),
+        self.tcpmystery_parser.parse_summary(tcpmystery_json=self.tcpmystery_json, network_summary=self.ns)
+        self.assertEqual(len(self.ns.ip_to_endpoints), len(self.ips))
+        self.assertEqual(len(self.ns.ip_flows), len(self.tcp_info))
+        self.assertEqual(len(self.ns.nodes), len(self.ips))
+        self.assertListEqual(sorted(self.ns.ip_to_endpoints.keys()), sorted(self.ips))
+        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in self.ns.ip_to_endpoints.values()]),
                          sorted(self.ips))
-        self.assertEqual(sorted(IP_FLOWS.keys()), sorted(self.tcp_keys))
+        self.assertEqual(sorted(self.ns.ip_flows.keys()), sorted(self.tcp_keys))
         node_endpoints = []
-        for key, value in NODES.items():
+        for key, value in self.ns.nodes.items():
             node_endpoints.extend(value.endpoints)
         self.assertEqual(sorted([str(x.ip_info.ipv4address) for x in node_endpoints]),
                          sorted(self.ips))
 
     def test_validate_metrics(self):
-        self.tcpmystery.parse_summary()
+        self.tcpmystery_parser.parse_summary(tcpmystery_json=self.tcpmystery_json, network_summary=self.ns)
         duration1 = 31.338471001
         start1 = 1486757294.498616999
         rtt1 = {'min_val': 1.7e-05, 'max_val': 0.995433, 'avg_val': 0.00491831}
         metric1 = {'start_ts': start1,
                    'end_ts': start1 + duration1,
                    'duration': duration1,
-                   'rtt_stats': Stats(**rtt1)}
+                   'rtt_stats': metrics.Stats(**rtt1)}
         rtt1_src_to_dst = {'min_val': 8e-06, 'max_val': 0.995412, 'avg_val': 0.00490331, 'var_val': 0.00170436}
         metric1_src_to_dst = {'start_ts': start1,
                               'end_ts': start1 + duration1,
@@ -67,7 +65,7 @@ class TestParseTCPMysterySummary(unittest.TestCase):
                               'total_bytes': 21768626.0,
                               'mtu': 1500.0,
                               'total_acks': 2.0,
-                              'rtt_stats':Stats(**rtt1_src_to_dst)}
+                              'rtt_stats':metrics.Stats(**rtt1_src_to_dst)}
 
         rtt1_dst_to_src = {'min_val': 9e-06, 'max_val': 2.1e-05, 'avg_val': 1.5e-05, 'var_val': 7.2e-11}
         metric1_dst_to_src = {'start_ts': start1,
@@ -76,16 +74,17 @@ class TestParseTCPMysterySummary(unittest.TestCase):
                               'total_bytes': 2.0,
                               'mtu': 72.0,
                               'total_acks': 4614.0,
-                              'rtt_stats': Stats(**rtt1_dst_to_src)}
-        flow1 = IP_FLOWS["192.168.1.120-60194-192.168.1.113-5001"]
+                              'rtt_stats': metrics.Stats(**rtt1_dst_to_src)}
+        flow1 = self.ns.ip_flows["192.168.1.120-60194-192.168.1.113-5001"]
         self.assertIsNotNone(flow1)
-        self.assertTrue(isinstance(flow1, TCPFlow))
-        self.assertEqual(flow1.flow_type.value, FlowType.TCP.value)
-        self.assertDictEqual(flow1.flow_metrics.__dict__, TCPMetrics(**metric1).__dict__)
-        self.assertTrue(isinstance(flow1.flow_metrics, TCPMetrics))
-        self.assertEqual(flow1.flow_metrics, TCPMetrics(**metric1))
-        self.assertEqual(flow1.flow_metrics_src_to_dst, TCPMetrics(**metric1_src_to_dst))
-        self.assertEqual(flow1.flow_metrics_dst_to_src, TCPMetrics(**metric1_dst_to_src))
+        self.assertTrue(isinstance(flow1, flow.TCPFlow))
+        self.assertEqual(flow1.flow_type.value, flow.FlowType.TCP.value)
+        self.assertEqual(flow1.flow_metrics.rtt_stats.__dict__, metrics.TCPMetrics(**metric1).rtt_stats.__dict__)
+        self.assertDictEqual(flow1.flow_metrics.__dict__, metrics.TCPMetrics(**metric1).__dict__)
+        self.assertTrue(isinstance(flow1.flow_metrics, metrics.TCPMetrics))
+        self.assertEqual(flow1.flow_metrics, metrics.TCPMetrics(**metric1))
+        self.assertEqual(flow1.flow_metrics_src_to_dst, metrics.TCPMetrics(**metric1_src_to_dst))
+        self.assertEqual(flow1.flow_metrics_dst_to_src, metrics.TCPMetrics(**metric1_dst_to_src))
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseTCPMysterySummary)

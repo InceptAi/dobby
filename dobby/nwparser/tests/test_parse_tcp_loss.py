@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
 
-from dobby.classes.endpoint import *
-from dobby.classes.phymodel import *
-from dobby.classes.node import *
-from dobby.classes.ipinfo import *
-from dobby.classes.node import *
-from dobby.classes.flow import *
-from dobby.classes.edge import *
-from dobby.classes.parse import *
-from dobby.classes.metrics import *
 import ipaddress
 import unittest
 
+import dobby.nwinfo.networksummary as networksummary
+import dobby.nwmodel.endpoint as endpoint
+import dobby.nwmodel.edge as edge
+import dobby.nwmodel.node as node
+import dobby.nwmodel.flow as flow
+import dobby.nwmodel.ipinfo as ipinfo
+import dobby.nwmetrics.metrics as metrics
+import dobby.nwparser.parsetcploss as tcplossparser
+import dobby.utils.util as util
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 
 class TestParseTCPLossSummary(unittest.TestCase):
     def setUp(self):
-        IP_TO_ENDPOINTS = {}
-        NODES = {}
-        IP_FLOWS = {}
         self.ip_1 = ipaddress.IPv4Address('192.168.1.113')
         self.ip_2 = ipaddress.IPv4Address('192.168.1.120')
         self.ip_3 = ipaddress.IPv4Address('54.148.159.16')
@@ -31,40 +28,41 @@ class TestParseTCPLossSummary(unittest.TestCase):
             self.ips.update([flow['@dst'], flow['@src']])
             self.tcp_info.append((flow['@src'], flow['@dst'], flow['@sport'], flow['@dport']))
             self.tcp_keys.append(str(flow['@src'] + "-" + flow['@sport'] + "-" + flow['@dst'] + "-" + flow['@dport']))
-        self.tcploss = ParseTCPLossSummary(tcploss_json=self.tcploss_json)
+        self.ns = networksummary.NetworkSummary()
+        self.tcploss_parser = tcplossparser.ParseTCPLossSummary()
 
     def tearDown(self):
         self.tcploss_json = None
 
     def test_validate_parsing(self):
-        self.tcploss.parse_summary()
-        self.assertEqual(len(IP_TO_ENDPOINTS), len(self.ips))
-        self.assertEqual(len(IP_FLOWS), len(self.tcp_info))
-        self.assertEqual(len(NODES), len(self.ips))
-        self.assertListEqual(sorted(IP_TO_ENDPOINTS.keys()), sorted(self.ips))
-        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in IP_TO_ENDPOINTS.values()]),
+        self.tcploss_parser.parse_summary(tcploss_json=self.tcploss_json, network_summary=self.ns)
+        self.assertEqual(len(self.ns.ip_to_endpoints), len(self.ips))
+        self.assertEqual(len(self.ns.ip_flows), len(self.tcp_info))
+        self.assertEqual(len(self.ns.nodes), len(self.ips))
+        self.assertListEqual(sorted(self.ns.ip_to_endpoints.keys()), sorted(self.ips))
+        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in self.ns.ip_to_endpoints.values()]),
                          sorted(self.ips))
-        self.assertEqual(sorted(IP_FLOWS.keys()), sorted(self.tcp_keys))
+        self.assertEqual(sorted(self.ns.ip_flows.keys()), sorted(self.tcp_keys))
         node_endpoints = []
-        for key, value in NODES.items():
+        for key, value in self.ns.nodes.items():
             node_endpoints.extend(value.endpoints)
         self.assertEqual(sorted([str(x.ip_info.ipv4address) for x in node_endpoints]),
                          sorted(self.ips))
 
     def test_validate_metrics(self):
-        self.tcploss.parse_summary()
+        self.tcploss_parser.parse_summary(tcploss_json=self.tcploss_json, network_summary=self.ns)
         metric1 = {'total_loss': 7728}
         metric1_src_to_dst = {'total_loss': 7728}
         metric1_dst_to_src = {'total_loss': 0}
-        flow1 = IP_FLOWS["192.168.1.120-60194-192.168.1.113-5001"]
+        flow1 = self.ns.ip_flows["192.168.1.120-60194-192.168.1.113-5001"]
         self.assertIsNotNone(flow1)
-        self.assertTrue(isinstance(flow1, TCPFlow))
-        self.assertEqual(flow1.flow_type.value, FlowType.TCP.value)
-        self.assertDictEqual(flow1.flow_metrics.__dict__, TCPMetrics(**metric1).__dict__)
-        self.assertTrue(isinstance(flow1.flow_metrics, TCPMetrics))
-        self.assertEqual(flow1.flow_metrics, TCPMetrics(**metric1))
-        self.assertEqual(flow1.flow_metrics_src_to_dst, TCPMetrics(**metric1_src_to_dst))
-        self.assertEqual(flow1.flow_metrics_dst_to_src, TCPMetrics(**metric1_dst_to_src))
+        self.assertTrue(isinstance(flow1, flow.TCPFlow))
+        self.assertEqual(flow1.flow_type.value, flow.FlowType.TCP.value)
+        self.assertDictEqual(flow1.flow_metrics.__dict__, metrics.TCPMetrics(**metric1).__dict__)
+        self.assertTrue(isinstance(flow1.flow_metrics, metrics.TCPMetrics))
+        self.assertEqual(flow1.flow_metrics, metrics.TCPMetrics(**metric1))
+        self.assertEqual(flow1.flow_metrics_src_to_dst, metrics.TCPMetrics(**metric1_src_to_dst))
+        self.assertEqual(flow1.flow_metrics_dst_to_src, metrics.TCPMetrics(**metric1_dst_to_src))
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseTCPLossSummary)

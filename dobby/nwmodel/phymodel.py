@@ -2,12 +2,10 @@
 """Utility class for a physical addresses and physical layer model.
 PhyModel:  A data structure that captures a physical layer and the networking aspects of that layer.
 """
-from __future__ import division
-from copy import deepcopy
 import re
 import time
 from collections import Counter
-from enum import Enum, unique
+import enum
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
@@ -72,8 +70,8 @@ class PhysicalAddress(object):
     def __gt__(self, other):
         return self.phy_address > other.phy_address
 
-@unique
-class PhysicalModelTypes(Enum):
+@enum.unique
+class PhysicalModelTypes(enum.Enum):
     UNKNOWN = 0
     ETHERNET = 1
     WIFI = 2
@@ -84,7 +82,7 @@ class PhysicalModelTypes(Enum):
     DOCSIS = 8
 
 #See https://en.wikipedia.org/wiki/Maximum_transmission_unit
-class PhysicalLayerMTU(Enum):
+class PhysicalLayerMTU(enum.Enum):
     UNKNOWN = 0
     ETHERNET = 1500
     WIFI = 2304

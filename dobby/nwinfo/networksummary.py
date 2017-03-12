@@ -8,7 +8,7 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 class NetworkSummary(object):
     """Info parsed so far
     """
-    def __init__(self, stats_ts=None, end_ts=None,
+    def __init__(self, start_ts=None, end_ts=None,
                  mac_to_endpoints=None, ip_to_endpoints=None,
                  nodes=None, edges=None, ip_flows=None,
                  phy_models=None, apps=None):

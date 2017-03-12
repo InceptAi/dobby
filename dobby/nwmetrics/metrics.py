@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Utility class for network metrics.
 """
+import dobby.utils.util as util
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 class Stats(object):
@@ -57,7 +58,8 @@ class Stats(object):
         rtt_dict = {}
         # Generate the metrics for RTT/Semirtt/Loss
         for rtt in rtt_json:
-            rtt_dict[rtt['@source']] = get_float_value(rtt, '@value')
+            if rtt.get('@source', None) and rtt['@source'] in ['min', 'max', 'avg', 'var']:
+                rtt_dict[str(rtt['@source']) + "_val"] = util.get_float_value(rtt, '@value')
         return cls(**rtt_dict)
 
 class Metrics(object):

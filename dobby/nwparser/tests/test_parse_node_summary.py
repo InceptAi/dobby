@@ -1,31 +1,22 @@
 #!/usr/bin/env python3
 
-from dobby.classes.endpoint import *
-from dobby.classes.phymodel import *
-from dobby.classes.node import *
-from dobby.classes.ipinfo import *
-from dobby.classes.node import *
-from dobby.classes.flow import *
-from dobby.classes.edge import *
-#from dobby.classes.parse import *
-from dobby.classes.metrics import *
-#from dobby.classes.parse import MAC_TO_ENDPOINTS, NODES
-import dobby.classes.parse as parse
 import ipaddress
 import unittest
 
+import dobby.nwinfo.networksummary as networksummary
+import dobby.nwmodel.endpoint as endpoint
+import dobby.nwmodel.node as nodemodel
+import dobby.nwmodel.flow as flow
+import dobby.nwmodel.ipinfo as ipinfo
+import dobby.nwmodel.phymodel as phymodel
+import dobby.nwmetrics.metrics as metrics
+import dobby.nwparser.parsenodesummary as nodesummaryparser
+import dobby.utils.util as util
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 
 class TestParseNodeSummary(unittest.TestCase):
     def setUp(self):
-        print ("Coming to setup")
-        print ("Len:IP_TO_ENDPOINTS", len(parse.IP_TO_ENDPOINTS))
-        print ("Len:MAC_TO_ENDPOINTS", len(parse.MAC_TO_ENDPOINTS))
-        print ("Len:NODES", len(parse.NODES))
-        parse.IP_TO_ENDPOINTS = {}
-        parse.MAC_TO_ENDPOINTS = {}
-        parse.NODES = {}
         self.ip_1 = ipaddress.IPv4Address('192.168.1.113')
         self.ip_2 = ipaddress.IPv4Address('192.168.1.120')
         self.ip_3 = ipaddress.IPv4Address('54.148.159.16')
@@ -46,47 +37,32 @@ class TestParseNodeSummary(unittest.TestCase):
                 ip_list = [ip['@addr'] for ip in ips_to_process]
                 self.ips.update(ip_list)
             self.node_count += 1
-        self.nodesummary = parse.ParseNodeSummary(node_json=self.node_json)
+        self.ns = networksummary.NetworkSummary()
+        self.nodesummary_parser = nodesummaryparser.ParseNodeSummary()
 
     def tearDown(self):
-        print ("Coming to teardown")
-        print ("Len:IP_TO_ENDPOINTS", len(parse.IP_TO_ENDPOINTS))
-        print ("Len:MAC_TO_ENDPOINTS", len(parse.MAC_TO_ENDPOINTS))
-        print ("Len:NODES", len(parse.NODES))
         self.node_json = None
-        self.nodesummary = None
-        #parse.MAC_TO_ENDPOINTS = None
-        #parse.NODES = None
-        #parse.IP_TO_ENDPOINTS = None
+        self.nodesummary_parser = None
 
     def test_validate_parsing(self):
-        print ("parsing: Len:IP_TO_ENDPOINTS", len(parse.IP_TO_ENDPOINTS))
-        print ("parsing: Len:MAC_TO_ENDPOINTS", len(parse.MAC_TO_ENDPOINTS))
-        print ("parsing: Len:NODES", len(parse.NODES))
-        assert(len(parse.IP_TO_ENDPOINTS)==0)
-        assert(len(parse.MAC_TO_ENDPOINTS)==0)
-        assert(len(parse.NODES)==0)
-        self.nodesummary.parse_summary()
-        self.assertEqual(len(parse.IP_TO_ENDPOINTS), len(self.ips))
-        self.assertListEqual(sorted(parse.IP_TO_ENDPOINTS.keys()), sorted(self.ips))
-        self.assertListEqual(sorted([x.lower() for x in parse.MAC_TO_ENDPOINTS.keys()]), sorted(self.ethers))
+        self.nodesummary_parser.parse_summary(node_json=self.node_json, network_summary=self.ns)
+        self.assertEqual(len(self.ns.ip_to_endpoints), len(self.ips))
+        self.assertListEqual(sorted(self.ns.ip_to_endpoints.keys()), sorted(self.ips))
+        self.assertListEqual(sorted([x.lower() for x in self.ns.mac_to_endpoints.keys()]), sorted(self.ethers))
         #No cloud IPs, since all are tagged to AP -- albeit incorrectly
-        cloud_ip_nodes = [node for node in parse.NODES.values() if node.node_type.value == NodeType.CLOUD_IP.value]
+        cloud_ip_nodes = [node for node in self.ns.nodes.values() if node.node_type.value == nodemodel.NodeType.CLOUD_IP.value]
         self.assertEqual(len(cloud_ip_nodes), 0)
 
 
     def test_validate_ap_is_correctly_tagged(self):
-        print ("tagged: Len:IP_TO_ENDPOINTS", len(parse.IP_TO_ENDPOINTS))
-        print ("tagged: Len:MAC_TO_ENDPOINTS", len(parse.MAC_TO_ENDPOINTS))
-        print ("tagged: Len:NODES", len(parse.NODES))
-        phy_addr = PhysicalAddress(phy_address='98:FC:11:50:AF:A4')
-        ap_endpoint = EndPoint(phy_address=phy_addr)
-        ap_node = Node(endpoints=[ap_endpoint], node_type=NodeType.WIRELESS_ROUTER)
+        phy_addr = phymodel.PhysicalAddress(phy_address='98:FC:11:50:AF:A4')
+        ap_endpoint = endpoint.EndPoint(phy_address=phy_addr)
+        ap_node = nodemodel.Node(endpoints=[ap_endpoint], node_type=nodemodel.NodeType.WIRELESS_ROUTER)
         ap_endpoint.node_id = ap_node.node_id
-        parse.MAC_TO_ENDPOINTS[str(phy_addr)] = ap_endpoint
-        parse.NODES[ap_node.node_id] = ap_node
-        self.nodesummary.parse_summary()
-        cloud_ip_nodes = [node for node in parse.NODES.values() if node.node_type.value == NodeType.CLOUD_IP.value]
+        self.ns.mac_to_endpoints[str(phy_addr)] = ap_endpoint
+        self.ns.nodes[ap_node.node_id] = ap_node
+        self.nodesummary_parser.parse_summary(node_json=self.node_json, network_summary=self.ns)
+        cloud_ip_nodes = [node for node in self.ns.nodes.values() if node.node_type.value == nodemodel.NodeType.CLOUD_IP.value]
         self.assertEqual(len(cloud_ip_nodes), 11)
 
 if __name__ == '__main__':

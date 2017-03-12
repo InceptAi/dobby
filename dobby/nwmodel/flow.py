@@ -2,16 +2,13 @@
 Flow: A flow is a transport or high layer connection from one
 endpoint to another such as a HTTP connection, an RTP streaming connection, etc.
 """
-from __future__ import division
-from copy import deepcopy
-from collections import Counter
-from enum import Enum, unique
-from dobby.classes.metrics import *
+import enum
+import dobby.nwmetrics.metrics as metrics
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
-@unique
-class FlowType(Enum):
+@enum.unique
+class FlowType(enum.Enum):
   UNKNOWN = 0
   HTTP = 1
   STREAMING = 2
@@ -70,11 +67,11 @@ class TCPFlow(object):
                       flow_metrics_src_to_dst=flow_metrics_src_to_dst,
                       flow_metrics_dst_to_src=flow_metrics_dst_to_src)
         if not flow_metrics:
-            self.flow_metrics = TCPMetrics()
+            self.flow_metrics = metrics.TCPMetrics()
         if not flow_metrics_src_to_dst:
-            self.flow_metrics_src_to_dst = TCPMetrics()
+            self.flow_metrics_src_to_dst = metrics.TCPMetrics()
         if not flow_metrics_dst_to_src:
-            self.flow_metrics_dst_to_src = TCPMetrics()
+            self.flow_metrics_dst_to_src = metrics.TCPMetrics()
 
     def update_flow_metrics(self, **metrics):
         self.flow_metrics.update_stats(**metrics)

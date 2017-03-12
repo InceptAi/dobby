@@ -1,15 +1,12 @@
 """Base class for a App like youtube etc.
 
 """
-from __future__ import division
-from copy import deepcopy
-from collections import Counter
-from enum import Enum, unique
+import enum
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
-@unique
-class AppType(Enum):
+@enum.unique
+class NetworkAppType(enum.Enum):
     UNKNOWN = 0
     BROWSER = 1
     STREAMING_VIDEO = 2
@@ -37,7 +34,7 @@ class NetworkApp(object):
         Set<Flow> flows // Set of flows representing this application.
     }
     """
-    def __init__(self, app_name=None, app_type=AppType.UNKNOWN, nodes=None, flows=None, **kwargs):
+    def __init__(self, app_name=None, app_type=NetworkAppType.UNKNOWN, nodes=None, flows=None, **kwargs):
         self.app_type = app_type
         self.app_name = app_name
         self.flows = flows if flows else []

@@ -7,10 +7,7 @@ Examples include a wifi network interface, ethernet, p2p links, cable modem's Do
 In a graph, this represents a vertex capable of having edges to other endpoints.
 
 """
-from __future__ import division
-from copy import deepcopy
-from collections import Counter
-from dobby.classes.phymodel import PhysicalAddress, WifiPhysicalModel
+import dobby.nwmodel.phymodel as phymodel
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 

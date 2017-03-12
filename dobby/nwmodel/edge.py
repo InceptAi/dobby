@@ -1,16 +1,12 @@
-from __future__ import division
-from copy import deepcopy
-from collections import Counter
-from collections import deque
-from enum import Enum, unique
+import enum
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 
 MAX_STATS_LENGTH = 20
 
 
-@unique
-class EdgeType(Enum):
+@enum.unique
+class EdgeType(enum.Enum):
     UNKNOWN = 0
     PHYSICAL = 1
     BRIDGE = 2

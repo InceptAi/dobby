@@ -2,10 +2,9 @@
 """
 from __future__ import division
 import copy
-import dobby.nwmodel.endpoint as endpoint
-import dobby.nwmodel.edge as edge
-import dobby.nwmodel.node as node
-import dobby.nwmodel.flow as flow
+import dobby.nwmodel.endpoint as endpointmodel
+import dobby.nwmodel.node as nodemodel
+import dobby.nwmodel.flow as flowmodel
 import dobby.nwmodel.ipinfo as ipinfo
 import dobby.nwmetrics.metrics as metrics
 import dobby.utils.util as util
@@ -27,9 +26,9 @@ class ParseTCPLossSummary(object):
             src_ip = ipinfo.IPInfo(ipv4address=flow['@src'])
             src_ip_endpoint = network_summary.ip_to_endpoints.get(str(src_ip.ipv4address), None)
             if not src_ip_endpoint:
-                src_ip_endpoint = endpoint.EndPoint(ip_info=src_ip)
+                src_ip_endpoint = endpointmodel.EndPoint(ip_info=src_ip)
             if not src_ip_endpoint.node_id:
-                src_ip_node = node.Node(endpoints=[src_ip_endpoint], node_type=node.NodeType.UNKNOWN)
+                src_ip_node = nodemodel.Node(endpoints=[src_ip_endpoint], node_type=nodemodel.NodeType.UNKNOWN)
                 src_ip_endpoint.node_id = src_ip_node.node_id
                 network_summary.nodes[src_ip_node.node_id] = src_ip_node
             else:
@@ -39,9 +38,9 @@ class ParseTCPLossSummary(object):
             dst_ip = ipinfo.IPInfo(ipv4address=flow['@dst'])
             dst_ip_endpoint = network_summary.ip_to_endpoints.get(str(dst_ip.ipv4address), None)
             if not dst_ip_endpoint:
-                dst_ip_endpoint = endpoint.EndPoint(ip_info=dst_ip)
+                dst_ip_endpoint = endpointmodel.EndPoint(ip_info=dst_ip)
             if not dst_ip_endpoint.node_id:
-                dst_ip_node = node.Node(endpoints=[dst_ip_endpoint], node_type=node.NodeType.UNKNOWN)
+                dst_ip_node = nodemodel.Node(endpoints=[dst_ip_endpoint], node_type=nodemodel.NodeType.UNKNOWN)
                 dst_ip_endpoint.node_id = dst_ip_node.node_id
                 network_summary.nodes[dst_ip_node.node_id] = dst_ip_node
             else:
@@ -80,7 +79,7 @@ class ParseTCPLossSummary(object):
             #Get the tcp flow and insert it into the IP_FLOWS dict
             tcp_flow = network_summary.ip_flows.get(flow_key, None)
             if not tcp_flow:
-                tcp_flow = flow.TCPFlow(**tcp_flow_info)
+                tcp_flow = flowmodel.TCPFlow(**tcp_flow_info)
                 network_summary.ip_flows[flow_key] = tcp_flow
             tcp_flow.flow_metrics.update_stats(**dict(total_loss=total_losses_both_dir))
             tcp_flow.flow_metrics_src_to_dst.update_stats(**dict(total_loss=total_losses_dir_0))

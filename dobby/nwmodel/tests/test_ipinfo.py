@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-from dobby.classes.endpoint import *
-from dobby.classes.phymodel import *
-from dobby.classes.node import *
-from dobby.classes.ipinfo import *
-from ipaddress import IPv4Address, IPv6Address
+import dobby.nwmodel.ipinfo as ipinfo
+import ipaddress
 import unittest
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
@@ -12,10 +9,10 @@ __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 class TestIPInfo(unittest.TestCase):
     def setUp(self):
-        self.ipv4address = IPv4Address('192.168.1.1')
-        self.ipv6address = IPv6Address('2001:db8::1000')
+        self.ipv4address = ipaddress.IPv4Address('192.168.1.1')
+        self.ipv6address = ipaddress.IPv6Address('2001:db8::1000')
         self.hostname = 'youtube.com'
-        self.ip_info = IPInfo(ipv4address=self.ipv4address,
+        self.ip_info = ipinfo.IPInfo(ipv4address=self.ipv4address,
                               ipv6address=self.ipv6address,
                               hostname=self.hostname)
 
@@ -30,7 +27,7 @@ class TestIPInfo(unittest.TestCase):
         self.assertIsNone(self.ip_info.gwv6address)
 
     def test_validate_empty_ip_info(self):
-        self.ip_info = IPInfo()
+        self.ip_info = ipinfo.IPInfo()
         self.assertIsNone(self.ip_info.ipv4address)
         self.assertIsNone(self.ip_info.ipv6address)
         self.assertIsNone(self.ip_info.hostname)
