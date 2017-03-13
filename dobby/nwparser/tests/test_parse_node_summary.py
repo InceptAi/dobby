@@ -65,6 +65,16 @@ class TestParseNodeSummary(unittest.TestCase):
         cloud_ip_nodes = [node for node in self.ns.nodes.values() if node.node_type.value == nodemodel.NodeType.CLOUD_IP.value]
         self.assertEqual(len(cloud_ip_nodes), 11)
 
+    def test_passing_empty_summary_works(self):
+        ns = self.nodesummary_parser.parse_summary(node_json=self.node_json)
+        self.assertEqual(len(ns.ip_to_endpoints), len(self.ips))
+        self.assertListEqual(sorted(ns.ip_to_endpoints.keys()), sorted(self.ips))
+        self.assertListEqual(sorted([x.lower() for x in ns.mac_to_endpoints.keys()]), sorted(self.ethers))
+        #No cloud IPs, since all are tagged to AP -- albeit incorrectly
+        cloud_ip_nodes = [node for node in ns.nodes.values() if node.node_type.value == nodemodel.NodeType.CLOUD_IP.value]
+        self.assertEqual(len(cloud_ip_nodes), 0)
+
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseNodeSummary)
     unittest.TextTestRunner(verbosity=2).run(suite)

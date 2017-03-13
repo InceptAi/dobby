@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import dobby.nwmodel.endpoint as endpoint
+import dobby.nwmodel.edge as edgemodel
 import dobby.nwmodel.phymodel as phymodel
 import dobby.nwmodel.node as node
 import dobby.nwmodel.ipinfo as ipinfo
@@ -67,6 +68,11 @@ class TestEndPoint(unittest.TestCase):
     def test_validate_update_mac_info(self):
         self.endpoint.update_phy_address(phy_address=self.mac)
         self.assertEqual(self.endpoint.phy_address, self.mac)
+
+    def test_validate_add_edge(self):
+        self.endpoint.add_edge(edge=edgemodel.Edge(endpoint.EndPoint(), self.endpoint))
+        self.assertEqual(len(self.endpoint.edges), 1)
+
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestEndPoint)

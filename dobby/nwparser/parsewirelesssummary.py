@@ -79,13 +79,11 @@ class ParseWirelessSummary(object):
             else:
                 stream_list = link['stream']
             for stream in stream_list:
-                assert(type(stream) == dict)
-                start_ts = stream.get('@start_ts', None)
-                if start_ts:
-                    start_ts = int(start_ts)
-                end_ts = stream.get('@end_ts', None)
-                if end_ts:
-                    end_ts = int(end_ts)
+                if (type(stream) != dict):
+                    print ("Invalid input stream:{0}, needed a dict, got:{1}".format(stream, type(stream)))
+                    continue
+                start_ts = util.get_float_value(stream, '@start_ts')
+                end_ts = util.get_float_value(stream, '@end_ts')
                 total_data_bytes = util.get_float_value(stream, '@total_data_bytes')
                 total_data_pkts = util.get_float_value(stream, '@total_data_pkts')
                 total_pkts = util.get_float_value(stream, '@total_pkts')

@@ -97,6 +97,32 @@ class TestParseTCPMysterySummary(unittest.TestCase):
         self.assertEqual(flow1.flow_metrics_src_to_dst, metrics.TCPMetrics(**metric1_src_to_dst))
         self.assertEqual(flow1.flow_metrics_dst_to_src, metrics.TCPMetrics(**metric1_dst_to_src))
 
+    def test_validate_not_passing_network_summary_works(self):
+        ns = self.tcpmystery_parser.parse_summary(tcpmystery_json=self.tcpmystery_json)
+        self.assertEqual(len(ns.ip_to_endpoints), len(self.ips))
+        self.assertEqual(len(ns.ip_flows), len(self.tcp_info))
+        self.assertEqual(len(ns.nodes), len(self.ips))
+        self.assertListEqual(sorted(ns.ip_to_endpoints.keys()), sorted(self.ips))
+
+        ips_to_compare_keys = set()
+        ips_to_compare_values = set()
+        for endpoint in ns.ip_to_endpoints.values():
+            ips_to_compare_keys.update(list(endpoint.ip_infos.keys()))
+            ips_to_compare_values.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare_keys), sorted(self.ips))
+        self.assertEqual(sorted(ips_to_compare_values), sorted(self.ips))
+
+        self.assertEqual(sorted(ns.ip_flows.keys()), sorted(self.tcp_keys))
+
+        node_endpoints = []
+        ips_to_compare = set()
+        for key, value in ns.nodes.items():
+            node_endpoints.extend(value.endpoints)
+        for endpoint in node_endpoints:
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseTCPMysterySummary)
     unittest.TextTestRunner(verbosity=2).run(suite)

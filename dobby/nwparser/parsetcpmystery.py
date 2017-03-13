@@ -2,6 +2,7 @@
 """
 import copy
 
+import dobby.nwinfo.networksummary as networksummary
 import dobby.nwmodel.endpoint as endpointmodel
 import dobby.nwmodel.flow as flowmodel
 import dobby.nwmodel.ipinfo as ipinfo
@@ -17,7 +18,7 @@ class ParseTCPMysterySummary(object):
     def parse_summary(self, tcpmystery_json, network_summary=None):
         # Create an empty summary if none was provided
         if not network_summary:
-            network_summary = NetworkSummary()
+            network_summary = networksummary.NetworkSummary()
         else:
             network_summary = copy.copy(network_summary)
         # First parse tcpmystery

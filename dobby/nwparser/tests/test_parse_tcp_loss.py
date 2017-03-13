@@ -76,6 +76,32 @@ class TestParseTCPLossSummary(unittest.TestCase):
         self.assertEqual(flow1.flow_metrics_src_to_dst, metrics.TCPMetrics(**metric1_src_to_dst))
         self.assertEqual(flow1.flow_metrics_dst_to_src, metrics.TCPMetrics(**metric1_dst_to_src))
 
+    def test_empty_network_summary_works(self):
+        ns = self.tcploss_parser.parse_summary(tcploss_json=self.tcploss_json)
+        self.assertEqual(len(ns.ip_to_endpoints), len(self.ips))
+        self.assertEqual(len(ns.ip_flows), len(self.tcp_info))
+        self.assertEqual(len(ns.nodes), len(self.ips))
+        self.assertListEqual(sorted(ns.ip_to_endpoints.keys()), sorted(self.ips))
+        ips_to_compare = set()
+        for endpoint in ns.ip_to_endpoints.values():
+            ips_to_compare.update(list(endpoint.ip_infos.keys()))
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
+        ips_to_compare = set()
+        for endpoint in ns.ip_to_endpoints.values():
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
+        self.assertEqual(sorted(ns.ip_flows.keys()), sorted(self.tcp_keys))
+
+        node_endpoints = []
+        ips_to_compare = set()
+        for key, value in ns.nodes.items():
+            node_endpoints.extend(value.endpoints)
+        for endpoint in node_endpoints:
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseTCPLossSummary)
     unittest.TextTestRunner(verbosity=2).run(suite)

@@ -43,8 +43,8 @@ class EndPoint(object):
         self.edges = []
         self.__dict__.update(kwargs)
 
-    def add_link(self, edge):
-        self.edges.add(edge)
+    def add_edge(self, edge):
+        self.edges.append(edge)
 
     def add_or_update_ip_info(self, ip_info):
         self.ip_infos[str(ip_info.ipv4address)] = ip_info

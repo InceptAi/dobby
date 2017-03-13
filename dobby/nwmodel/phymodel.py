@@ -25,7 +25,7 @@ class PhysicalAddress(object):
 
     """
 
-    def __init__(self, phy_address=None, vendor=None, **kwargs):
+    def __init__(self, phy_address=None, vendor=None):
         """Initialize an address and its attributes.
         Parameters
         ----------
@@ -33,16 +33,13 @@ class PhysicalAddress(object):
         attr : keyword arguments, optional (default= no attributes)
           Attributes to add to graph as key=value pairs.
         """
-        if not phy_address:
-          raise ValueError('Physical address cannot be null')
         if not check_mac(phy_address):
-          raise ValueError('Incorrect format of input mac, should be (AA:BB:CC:DD:EE:FF)',
-                            phy_address)
-        self.metadata = {}
-        self.phy_address = phy_address.lower().replace("-",":")
+          print('Incorrect format of input mac, should be (AA:BB:CC:DD:EE:FF). Input={0}'.format(phy_address))
+          self.phy_address = None
+        else:
+            self.phy_address = phy_address.lower().replace("-",":")
         self.vendor = vendor
         #self.__dict__.update((k,v) for k,v in locals().iteritems() if k != 'self')
-        self.__dict__.update(kwargs)
 
     def __hash__(self):
         return hash(self.phy_address)
@@ -60,9 +57,6 @@ class PhysicalAddress(object):
 
     def __repr__(self):
         return self.__str__()
-
-    def update_properties(self, **kwargs):
-        self.update(attr)
 
     def update_vendor(self, vendor):
         self.vendor = vendor

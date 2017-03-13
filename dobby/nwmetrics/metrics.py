@@ -69,7 +69,7 @@ class Metrics(object):
         int totals_*
     }
     """
-    def __init__(self, start_ts=None, end_ts=None, total_pkts=None, total_bytes=None, **kwargs):
+    def __init__(self, start_ts=None, end_ts=None, total_pkts=None, total_bytes=None):
         self.start_ts = start_ts
         self.end_ts = end_ts
         self.total_pkts = total_pkts
@@ -94,7 +94,7 @@ class WirelessMetrics(Metrics):
     def __init__(self, start_ts=None, end_ts=None, total_pkts=None, total_bytes=None,
                  total_data_pkts=None, total_data_bytes=None, total_retx=None,
                  noise_stats=None, snr_stats=None, rate_stats=None, size_stats=None,
-                 total_trans_time_usec=None, avg_data_pkt_duration_usec=None, **kwargs):
+                 total_trans_time_usec=None, avg_data_pkt_duration_usec=None):
         Metrics.__init__(self, start_ts=start_ts, end_ts=end_ts,
                          total_pkts=total_pkts, total_bytes=total_bytes)
         self.total_data_pkts = total_data_pkts
@@ -106,7 +106,7 @@ class WirelessMetrics(Metrics):
         self.size_stats = size_stats
         self.total_trans_time_usec = total_trans_time_usec
         self.avg_data_pkt_duration_usec = avg_data_pkt_duration_usec
-        self.__dict__.update(kwargs)
+        #self.__dict__.update((k,v) for k,v in locals().iteritems() if k != "self")
 
     def update_stats(self, **updated_stats):
         self.__dict__.update(updated_stats)

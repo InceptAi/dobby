@@ -50,6 +50,25 @@ class TestParseWirelessSummary(unittest.TestCase):
         self.assertEqual(sorted([str(x.phy_address) for x in node_endpoints]),
                          self.all_macs_sorted)
 
+    def test_validate_passing_none_summary_works(self):
+        ns = self.wireless_parser.parse_summary(self.wireless_json)
+        self.assertEqual(len(ns.mac_to_endpoints), 4)
+        self.assertEqual(len(ns.phy_models), 1)
+        self.assertEqual(len(ns.edges), 2)
+        self.assertEqual(len(ns.nodes), 4)
+        self.assertListEqual(sorted(ns.mac_to_endpoints.keys()), self.all_macs_sorted)
+        self.assertEqual(sorted([str(endpoint.phy_address) for endpoint in ns.mac_to_endpoints.values()]),
+                         self.all_macs_sorted)
+        self.assertEqual(sorted(ns.phy_models.keys()), sorted([(str(self.bssid), self.channel)]))
+        self.assertEqual(sorted(ns.edges.keys()),
+                         sorted([(str(self.addr1), str(self.addr2)), (str(self.addr3), str(self.addr4))]))
+        node_endpoints = []
+        for key, value in ns.nodes.items():
+            node_endpoints.extend(value.endpoints)
+        self.assertEqual(sorted([str(x.phy_address) for x in node_endpoints]),
+                         self.all_macs_sorted)
+
+
     def test_validate_metrics(self):
         self.wireless_parser.parse_summary(self.wireless_json, network_summary=self.ns)
         edge1 = self.ns.edges[(str(self.addr1), str(self.addr2))]

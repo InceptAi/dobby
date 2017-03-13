@@ -61,6 +61,17 @@ class TestTCPMetrics(unittest.TestCase):
         self.assertEqual(self.tcp_metric.rtt_stats.max_val, 120.001)
         self.assertEqual(self.tcp_metric.rtt_stats.num_samples, 10)
 
+    def test_eq_works(self):
+        test_input = dict(start_ts=1, end_ts=2, total_pkts=10, total_bytes=100,
+                          duration=1, mtu=1200, total_loss=5,
+                          total_acks=10, rtt_stats=self.rtt_stats)
+        self.assertEqual(self.tcp_metric, metrics.TCPMetrics(**test_input))
+        self.assertNotEqual(self.tcp_metric, test_input)
+
+    def test_ne_works(self):
+        self.assertNotEqual(metrics.Metrics(start_ts=1, end_ts=2), metrics.Metrics(start_ts=1, end_ts=3))
+        self.assertNotEqual(metrics.Metrics(start_ts=1, end_ts=2), dict(start_ts=1, end_ts=2))
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTCPMetrics)
     unittest.TextTestRunner(verbosity=2).run(suite)

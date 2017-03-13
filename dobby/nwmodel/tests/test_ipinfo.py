@@ -34,6 +34,11 @@ class TestIPInfo(unittest.TestCase):
         self.assertIsNone(self.ip_info.gwv4address)
         self.assertIsNone(self.ip_info.gwv6address)
 
+    def test_validate_update_hostname(self):
+        new_hostname = 'cnn.com'
+        self.ip_info.update_hostname(hostname=new_hostname)
+        self.assertEqual(self.ip_info.hostname, new_hostname)
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestIPInfo)
     unittest.TextTestRunner(verbosity=2).run(suite)

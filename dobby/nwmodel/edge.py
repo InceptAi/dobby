@@ -12,12 +12,6 @@ class EdgeType(enum.Enum):
     BRIDGE = 2
     VIRTUAL = 3
 
-def find_metrics(metrics_queue, ts):
-    for metrics in list(reversed(metrics_queue)):
-        if (ts <= metrics.start_ts and ts < metrics.end_ts):
-            return metrics
-    return None
-
 class Edge(object):
     """
     Base class for edges in our model.
