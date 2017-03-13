@@ -32,47 +32,33 @@ class ParseManager(object):
 
 
     def parse_summary(self, start_ts=None, end_ts=None,
-                      wireless_summary_file=None, node_summary_file=None,
-                      tcploss_summary_file=None, tcpmystery_summary_file=None,
-                      wireless_json=None, node_json=None,
-                      tcploss_json=None, tcpmystery_json=None):
+                      wireless_stream=None, node_stream=None,
+                      tcploss_stream=None, tcpmystery_stream=None):
         ns = networksummary.NetworkSummary()
         ns.start_ts = start_ts
         ns.end_ts = end_ts
         #Parse wireless
-        if wireless_json:
+        if wireless_stream:
+            wireless_json = util.read_json(wireless_stream)
             ns = self.wireless_parser.parse_summary(wireless_json=wireless_json,
-                                                    network_summary=ns)
-        wireless_json_from_file = util.read_json(wireless_summary_file) if wireless_summary_file else None
-        if wireless_json_from_file:
-            ns = self.wireless_parser.parse_summary(wireless_json=wireless_json_from_file,
                                                     network_summary=ns)
 
         #Parse Node summary
-        if node_json:
+        if node_stream:
+            node_json = util.read_json(node_stream)
             ns = self.nodesummary_parser.parse_summary(node_json=node_json,
-                                                       network_summary=ns)
-        node_json_from_file = util.read_json(node_summary_file) if node_summary_file else None
-        if node_json_from_file:
-            ns = self.nodesummary_parser.parse_summary(node_json=node_json_from_file,
                                                        network_summary=ns)
 
         #Parse TCP Mystery
-        if tcpmystery_json:
+        if tcpmystery_stream:
+            tcpmystery_json = util.read_json(tcpmystery_stream)
             ns = self.tcpmystery_parser.parse_summary(tcpmystery_json=tcpmystery_json,
-                                                      network_summary=ns)
-        tcpmystery_json_from_file = util.read_json(tcpmystery_summary_file) if tcpmystery_summary_file else None
-        if tcpmystery_json_from_file:
-            ns = self.tcpmystery_parser.parse_summary(tcpmystery_json=tcpmystery_json_from_file,
                                                       network_summary=ns)
 
         #Parse TCP Loss
-        if tcploss_json:
+        if tcploss_stream:
+            tcploss_json = util.read_json(tcploss_stream)
             ns = self.tcploss_parser.parse_summary(tcploss_json=tcploss_json,
-                                                   network_summary=ns)
-        tcploss_json_from_file = util.read_json(tcploss_summary_file) if tcploss_summary_file else None
-        if tcploss_json_from_file:
-            ns = self.tcploss_parser.parse_summary(tcploss_json=tcploss_json_from_file,
                                                    network_summary=ns)
 
         self.summary_queue.append(ns)

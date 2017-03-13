@@ -2,6 +2,8 @@
 
 import ipaddress
 import unittest
+import io
+import json
 
 import dobby.nwinfo.networksummary as networksummary
 import dobby.nwmodel.endpoint as endpoint
@@ -82,13 +84,17 @@ class TestParseManager(unittest.TestCase):
             self.wifimodels[link['@bssid']] = wifimodel
             self.ethers.update([link['@ap'].lower(), link['@client'].lower()])
 
-        self.parse_manager = parsemanager.ParseManager()
+        self.wireless_stream = io.StringIO(json.dumps(self.wireless_json))
+        self.node_stream = io.StringIO(json.dumps(self.node_json))
+        self.tcpmystery_stream = io.StringIO(json.dumps(self.tcpmystery_json))
+        self.tcploss_stream = io.StringIO(json.dumps(self.tcploss_json))
 
+        self.parse_manager = parsemanager.ParseManager()
         self.parse_manager.parse_summary(start_ts=1, end_ts=2,
-                           wireless_json=self.wireless_json,
-                           node_json=self.node_json,
-                           tcploss_json=self.tcploss_json,
-                           tcpmystery_json=self.tcpmystery_json)
+                           wireless_stream=self.wireless_stream,
+                           node_stream=self.node_stream,
+                           tcploss_stream=self.tcploss_stream,
+                           tcpmystery_stream=self.tcpmystery_stream)
 
     def tearDown(self):
         self.parse_manager = None
