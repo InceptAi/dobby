@@ -1,7 +1,6 @@
 """Base class for storing parsed summaries.
 """
 from __future__ import division
-from copy import deepcopy
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 

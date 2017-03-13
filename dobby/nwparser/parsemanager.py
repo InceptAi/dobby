@@ -23,10 +23,10 @@ class ParseManager(object):
         self.tcploss_parser = parsetcploss.ParseTCPLossSummary()
         self.nodesummary_parser = parsenodesummary.ParseNodeSummary()
 
-    def find_summary(self, ts):
+    def find_summary(self, timestamp):
         for summary in list(reversed(self.summary_queue)):
             #TODO -- handle summary.start_ts/end_ts being none
-            if (ts >= summary.start_ts and ts < summary.end_ts):
+            if timestamp >= summary.start_ts and timestamp < summary.end_ts:
                 return summary
         return None
 
