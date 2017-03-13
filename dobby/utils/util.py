@@ -4,6 +4,8 @@ import json
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
 def get_float_value(json_dict, key):
+    if not json_dict or not key:
+        return None
     try:
         value = float(json_dict[key]) if json_dict.get(key, None) else None
     except ValueError:

@@ -53,13 +53,13 @@ class ParseNodeSummary(object):
                     if node.node_type == nodemodel.NodeType.WIRELESS_ROUTER:
                         # Create an endpoint with ip_info -- assign it to the endpoint above if not AP
                         # TODO remove this hack -- IP-->MAC should be derived from ARP requests
-                        ip_endpoint = endpointmodel.EndPoint(ip_info = ip_info)
+                        ip_endpoint = endpointmodel.EndPoint(ip_info=ip_info)
                         ip_node = nodemodel.Node(endpoints=[ip_endpoint], node_type=nodemodel.NodeType.CLOUD_IP)
                         ip_endpoint.node_id = ip_node.node_id
                         network_summary.ip_to_endpoints[str(ip_info.ipv4address)] = ip_endpoint
                         network_summary.nodes[ip_node.node_id] = ip_node
                     else:
                         # Add to the MAC endpoint above
-                        endpoint.update_ip_info(ip_info=ip_info)
+                        endpoint.add_or_update_ip_info(ip_info=ip_info)
                         network_summary.ip_to_endpoints[str(ip_info.ipv4address)] = endpoint
         return network_summary

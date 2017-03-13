@@ -40,14 +40,26 @@ class TestParseTCPLossSummary(unittest.TestCase):
         self.assertEqual(len(self.ns.ip_flows), len(self.tcp_info))
         self.assertEqual(len(self.ns.nodes), len(self.ips))
         self.assertListEqual(sorted(self.ns.ip_to_endpoints.keys()), sorted(self.ips))
-        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in self.ns.ip_to_endpoints.values()]),
-                         sorted(self.ips))
+
+        ips_to_compare = set()
+        for endpoint in self.ns.ip_to_endpoints.values():
+            ips_to_compare.update(list(endpoint.ip_infos.keys()))
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
+        ips_to_compare = set()
+        for endpoint in self.ns.ip_to_endpoints.values():
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
+
         self.assertEqual(sorted(self.ns.ip_flows.keys()), sorted(self.tcp_keys))
+
         node_endpoints = []
+        ips_to_compare = set()
         for key, value in self.ns.nodes.items():
             node_endpoints.extend(value.endpoints)
-        self.assertEqual(sorted([str(x.ip_info.ipv4address) for x in node_endpoints]),
-                         sorted(self.ips))
+        for endpoint in node_endpoints:
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
 
     def test_validate_metrics(self):
         self.tcploss_parser.parse_summary(tcploss_json=self.tcploss_json, network_summary=self.ns)

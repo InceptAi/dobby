@@ -54,7 +54,6 @@ class Edge(object):
         self.edge_metrics = metrics
 
     def update_metrics_ab(self, metrics_ab):
-        print ("Adding metrics ab for", str(self.endpoint_a.phy_address), str(self.endpoint_b.phy_address))
         self.edge_metrics_ab = metrics_ab
 
     def update_metrics_ba(self, metrics_ba):

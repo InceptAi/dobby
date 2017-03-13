@@ -7,7 +7,6 @@ import dobby.nwmetrics.metrics as metrics
 import dobby.nwmodel.edge as edgemodel
 import dobby.nwmodel.endpoint as endpoint
 import dobby.nwmodel.flow as flow
-import dobby.nwmodel.ipinfo as ipinfo
 import dobby.nwmodel.node as nodemodel
 import dobby.nwmodel.phymodel as phymodel
 import dobby.utils.util as util
@@ -50,7 +49,7 @@ class ParseWirelessSummary(object):
             ap_endpoint = network_summary.mac_to_endpoints.get(str(ap_addr), None)
             if not ap_endpoint:
                 ap_endpoint = endpoint.EndPoint(phy_address=ap_addr,
-                                       phy_model=wifi_model)
+                                                phy_model=wifi_model)
                 #TODO: It should be one AP node per ssid -- right now it is one AP node per mac
                 #Create a new node for the AP
                 ap_node = nodemodel.Node(endpoints=[ap_endpoint], node_type=nodemodel.NodeType.WIRELESS_ROUTER)
@@ -61,8 +60,9 @@ class ParseWirelessSummary(object):
             client_endpoint = network_summary.mac_to_endpoints.get(str(client_addr), None)
             if not client_endpoint:
                 client_endpoint = endpoint.EndPoint(phy_address=client_addr,
-                                           phy_model=wifi_model)
-                client_node = nodemodel.Node(endpoints=[client_endpoint], node_type=nodemodel.NodeType.WIRELESS_CLIENT)
+                                                    phy_model=wifi_model)
+                client_node = nodemodel.Node(endpoints=[client_endpoint],
+                                             node_type=nodemodel.NodeType.WIRELESS_CLIENT)
                 client_endpoint.node_id = client_node.node_id
                 network_summary.mac_to_endpoints[str(client_addr)] = client_endpoint
                 network_summary.nodes[client_node.node_id] = client_node
@@ -70,7 +70,9 @@ class ParseWirelessSummary(object):
             # Create an edge for this
             edge = network_summary.edges.get((str(ap_addr), str(client_addr)), None)
             if not edge:
-                edge = edgemodel.Edge(endpoint_a=ap_addr, endpoint_b=client_addr, edge_type=edgemodel.EdgeType.PHYSICAL)
+                edge = edgemodel.Edge(endpoint_a=ap_addr,
+                                      endpoint_b=client_addr,
+                                      edge_type=edgemodel.EdgeType.PHYSICAL)
 
             if type(link['stream']) != list:
                 stream_list = [link['stream']]
@@ -105,13 +107,13 @@ class ParseWirelessSummary(object):
                 #TODO--switch this back to TODS in click
                 if stream['@dir'] == "CLIENT-AP":
                     #AP - a, client - b, this metric is for b->a
-                    print ("TODS: Adding edge metrics for:", str(ap_addr), str(client_addr))
+                    #print ("TODS: Adding edge metrics for:", str(ap_addr), str(client_addr))
                     edge.update_metrics_ba(metrics_to_add)
                 #if stream['@dir'] == "FROMDS":
                 #TODO--switch this back to FROMDS in click
                 if stream['@dir'] == "AP-CLIENT":
                     #AP - a, client - b, this metric is for a->b
-                    print ("FROMDS: Adding edge metrics for:", str(ap_addr), str(client_addr))
+                    #print ("FROMDS: Adding edge metrics for:", str(ap_addr), str(client_addr))
                     edge.update_metrics_ab(metrics_to_add)
                 if stream['@dir'] == "NODS":
                     #TODO -- fix this

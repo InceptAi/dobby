@@ -36,7 +36,9 @@ class EndPoint(object):
     def __init__(self, phy_address=None, phy_model=None, ip_info=None, node_id=None, **kwargs):
         self.phy_address = phy_address
         self.phy_model = phy_model
-        self.ip_info = ip_info
+        self.ip_infos = {}
+        if ip_info:
+            self.ip_infos[str(ip_info.ipv4address)] = ip_info
         self.node_id = node_id
         self.edges = []
         self.__dict__.update(kwargs)
@@ -44,8 +46,8 @@ class EndPoint(object):
     def add_link(self, edge):
         self.edges.add(edge)
 
-    def update_ip_info(self, ip_info):
-        self.ip_info = ip_info
+    def add_or_update_ip_info(self, ip_info):
+        self.ip_infos[str(ip_info.ipv4address)] = ip_info
 
     def update_node_info(self, node_id):
         self.node_id = node_id

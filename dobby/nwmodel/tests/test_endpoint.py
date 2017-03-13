@@ -14,6 +14,7 @@ class TestEndPoint(unittest.TestCase):
         self.mac = phymodel.PhysicalAddress(phy_address='AA:BB:CC:DD:EE:FF')
         self.phy_model = phymodel.WifiPhysicalModel(mac=self.mac)
         self.ip_info = ipinfo.IPInfo(ipv4address='192.168.1.1')
+        self.ip_infos = {'192.168.1.1':self.ip_info}
         self.node_id = '123456'
         self.endpoint = endpoint.EndPoint()
 
@@ -24,13 +25,13 @@ class TestEndPoint(unittest.TestCase):
         self.assertIsNone(self.endpoint.phy_address)
         self.assertIsNone(self.endpoint.phy_model)
         self.assertIsNone(self.endpoint.node_id)
-        self.assertIsNone(self.endpoint.ip_info)
+        self.assertDictEqual(self.endpoint.ip_infos, {})
 
     def test_validate_filled_endpoint(self):
         self.endpoint = endpoint.EndPoint(phy_address=self.mac, ip_info=self.ip_info,
                                           phy_model=self.phy_model, node_id=self.node_id)
         self.assertEqual(self.endpoint.phy_address, self.mac)
-        self.assertEqual(self.endpoint.ip_info, self.ip_info)
+        self.assertEqual(self.endpoint.ip_infos, self.ip_infos)
         self.assertEqual(self.endpoint.node_id, self.node_id)
         self.assertEqual(self.endpoint.phy_model, self.phy_model)
 
@@ -45,11 +46,11 @@ class TestEndPoint(unittest.TestCase):
 
     def test_validate_endpoint_with_ip_info(self):
         self.endpoint = endpoint.EndPoint(ip_info=self.ip_info)
-        self.assertEqual(self.endpoint.ip_info, self.ip_info)
+        self.assertEqual(self.endpoint.ip_infos, self.ip_infos)
 
     def test_validate_update_ip_info(self):
-        self.endpoint.update_ip_info(ip_info=self.ip_info)
-        self.assertEqual(self.endpoint.ip_info, self.ip_info)
+        self.endpoint.add_or_update_ip_info(ip_info=self.ip_info)
+        self.assertEqual(self.endpoint.ip_infos, self.ip_infos)
 
     def test_validate_update_phy_model(self):
         self.endpoint.update_phy_model(phy_model=self.phy_model)

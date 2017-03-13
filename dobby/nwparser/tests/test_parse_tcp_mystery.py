@@ -40,14 +40,24 @@ class TestParseTCPMysterySummary(unittest.TestCase):
         self.assertEqual(len(self.ns.ip_flows), len(self.tcp_info))
         self.assertEqual(len(self.ns.nodes), len(self.ips))
         self.assertListEqual(sorted(self.ns.ip_to_endpoints.keys()), sorted(self.ips))
-        self.assertEqual(sorted([str(endpoint.ip_info.ipv4address) for endpoint in self.ns.ip_to_endpoints.values()]),
-                         sorted(self.ips))
+
+        ips_to_compare_keys = set()
+        ips_to_compare_values = set()
+        for endpoint in self.ns.ip_to_endpoints.values():
+            ips_to_compare_keys.update(list(endpoint.ip_infos.keys()))
+            ips_to_compare_values.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare_keys), sorted(self.ips))
+        self.assertEqual(sorted(ips_to_compare_values), sorted(self.ips))
+
         self.assertEqual(sorted(self.ns.ip_flows.keys()), sorted(self.tcp_keys))
+
         node_endpoints = []
+        ips_to_compare = set()
         for key, value in self.ns.nodes.items():
             node_endpoints.extend(value.endpoints)
-        self.assertEqual(sorted([str(x.ip_info.ipv4address) for x in node_endpoints]),
-                         sorted(self.ips))
+        for endpoint in node_endpoints:
+            ips_to_compare.update([str(ip_info.ipv4address) for ip_info in endpoint.ip_infos.values()])
+        self.assertEqual(sorted(ips_to_compare), sorted(self.ips))
 
     def test_validate_metrics(self):
         self.tcpmystery_parser.parse_summary(tcpmystery_json=self.tcpmystery_json, network_summary=self.ns)
@@ -75,6 +85,7 @@ class TestParseTCPMysterySummary(unittest.TestCase):
                               'mtu': 72.0,
                               'total_acks': 4614.0,
                               'rtt_stats': metrics.Stats(**rtt1_dst_to_src)}
+
         flow1 = self.ns.ip_flows["192.168.1.120-60194-192.168.1.113-5001"]
         self.assertIsNotNone(flow1)
         self.assertTrue(isinstance(flow1, flow.TCPFlow))
