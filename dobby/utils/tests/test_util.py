@@ -5,6 +5,7 @@ import dobby.utils.util as util
 import io
 import json
 import unittest
+import unittest.mock
 
 __author__ = """\n""".join(['Vivek Shrivastava (vivek@obiai.tech)'])
 
@@ -33,6 +34,11 @@ class TestUtils(unittest.TestCase):
     def test_read_json_works_for_valid_json(self):
         input_file_stream = io.StringIO('invalid_json')
         self.assertIsNone(util.read_json(input_file_stream))
+
+    def test_read_json_works_for_valid_file1(self):
+        json_to_read = dict(a=1)
+        with unittest.mock.patch('builtins.open', unittest.mock.mock_open(read_data=json.dumps(json_to_read))):
+            self.assertEqual(util.read_json_from_file('/tmp/foo1'), json_to_read)
 
     def test_read_json_from_file_raises_error_if_no_file(self):
         self.assertIsNone(util.read_json_from_file('fileisnothere'))
