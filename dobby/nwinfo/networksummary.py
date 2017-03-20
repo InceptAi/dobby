@@ -21,3 +21,13 @@ class NetworkSummary(object):
         self.apps = apps if apps else {}
         self.phy_models = phy_models if phy_models else {}
 
+    def __str__(self):
+        return_string = "Network Summary:"
+        if self.start_ts:
+            return_string += "\nstart_ts:" + self.start_ts
+        if self.end_ts:
+            return_string += "\nend_ts:" + self.end_ts
+        return_string += "\nMAC TO ENDPOINTS" + str(self.mac_to_endpoints)
+        return_string += "\nIP TO ENDPOINTS" + str(self.ip_to_endpoints)
+        return_string += "\nIP FLOWS" + str(self.ip_flows)
+        return return_string

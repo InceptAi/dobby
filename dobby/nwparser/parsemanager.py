@@ -62,6 +62,7 @@ class ParseManager(object):
                                                    network_summary=ns)
 
         self.summary_queue.append(ns)
+        return ns
 
 def main():
     parse_manager = ParseManager()
