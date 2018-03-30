@@ -1,8 +1,8 @@
 sudo: required
 language: python
 install:
-pip3 install -e .
-pip3 install nose
+sudo pip3 install -e .
+sudo pip3 install nose
 python:
     - 3.5
 script: nosetest
