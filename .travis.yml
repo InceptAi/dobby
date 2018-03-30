@@ -1,8 +1,20 @@
 sudo: required
 language: python
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+after_script:
+  - coverage xml
+  - ./cc-test-reporter after-build --exit-code $TEST_OUTPUT; fi
+env:
+  global:
+    - CC_TEST_REPORTER_ID=e4534c51f2f4ea8c1b443872501c053e533b7b96bd986ba0bdd4a38f7f107d12
 install:
     - sudo pip install -e .
     - sudo pip install nose
 python:
     - 3.5
-script: nosetests
+script: 
+    - nosetests
+    - TEST_OUTPUT=`echo $?`
