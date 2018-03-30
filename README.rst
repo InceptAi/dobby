@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/InceptAi/dobby.svg?branch=master)](https://travis-ci.org/InceptAi/dobby)
+.. image:: https://travis-ci.org/InceptAi/dobby.svg?branch=master
+    :target: https://travis-ci.org/InceptAi/dobby
+
 
 Dobby
 =======================
