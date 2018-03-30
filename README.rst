@@ -1,6 +1,9 @@
 .. image:: https://travis-ci.org/InceptAi/dobby.svg?branch=master
     :target: https://travis-ci.org/InceptAi/dobby
 
+.. image:: https://api.codeclimate.com/v1/badges/49a85d4bb40a4bae8b81/maintainability
+   :target: https://codeclimate.com/github/viveks9/dobby/maintainability
+   :alt: Maintainability
 
 Dobby
 =======================
