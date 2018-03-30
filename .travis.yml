@@ -4,6 +4,5 @@ install:
     - sudo pip install -e .
     - sudo pip install nose
 python:
-    - 3.4
     - 3.5
 script: nosetests
