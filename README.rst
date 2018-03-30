@@ -25,7 +25,6 @@ Install and update using `pip`_:
     cd dobby
     pip install -e .
 
-
 Running
 ----------
 .. code-block:: text
